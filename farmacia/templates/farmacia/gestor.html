@@ -1,0 +1,523 @@
+<!--
+    Plantilla del Panel Administrativo del Gestor de Bodega.
+    Suministra una interfaz para el CRUD integral del inventario físico y un 
+    módulo de gestión de despacho para validar y entregar los pedidos confirmados.
+-->
+{% extends 'farmacia/base.html' %}
+
+{% block content %}
+<style>
+    .dashboard-header { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); color: white; border-radius: 16px; padding: 2.5rem 2rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .stat-card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border-left: 5px solid #0d6efd; transition: transform 0.2s; }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-card.warning { border-left-color: #ffc107; }
+    .stat-card.danger { border-left-color: #dc3545; }
+    
+    .admin-table-card { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; border: none; }
+    .table-custom th { background-color: #f8f9fa; color: #6c757d; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 1rem; border-bottom: 2px solid #e9ecef; }
+    .table-custom td { padding: 1.2rem 1rem; vertical-align: middle; border-bottom: 1px solid #f1f3f5; }
+    .table-custom tbody tr { transition: background-color 0.2s ease; }
+    .table-custom tbody tr:hover { background-color: #f8faff; }
+    
+    .row-inactive { opacity: 0.55; background-color: #fafafa; }
+    .row-inactive td { filter: grayscale(100%); }
+    
+    .badge-soft-success { background-color: #d1e7dd; color: #0f5132; }
+    .badge-soft-danger { background-color: #f8d7da; color: #842029; }
+    .badge-soft-warning { background-color: #fff3cd; color: #664d03; }
+    
+    .btn-action { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s; border: none; }
+    .btn-action:hover { transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    
+    .nav-pills .nav-link { border-radius: 50rem; font-weight: 600; padding: 0.75rem 1.5rem; color: #495057; }
+    .nav-pills .nav-link.active { background-color: #0d6efd; color: white; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3); }
+</style>
+
+<!-- Cabecera del Dashboard -->
+<div class="dashboard-header mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <div class="mb-3 mb-md-0">
+        <span id="adminBadge" class="badge bg-warning text-dark mb-2 px-3 py-2 rounded-pill fw-bold" style="letter-spacing: 1px; display: none;">
+            <i class="fa-solid fa-crown me-1"></i> MODO SUPERUSUARIO
+        </span>
+        <h1 class="fw-bold mb-1">Centro de Bodega</h1>
+        <p class="mb-0 text-light text-opacity-75">Control integral de inventario B2B y despacho de órdenes.</p>
+    </div>
+    <div>
+        <button class="btn btn-light btn-lg fw-bold text-primary shadow rounded-pill px-4" onclick="abrirModalCrear()">
+            <i class="fa-solid fa-plus me-2"></i> Registrar Nuevo Insumo
+        </button>
+    </div>
+</div>
+
+<!-- Tarjetas de Estadísticas -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <h6 class="text-muted fw-bold text-uppercase mb-1">Total en Catálogo</h6>
+            <h2 class="fw-bold mb-0" id="stat-total">0</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card warning">
+            <h6 class="text-muted fw-bold text-uppercase mb-1">Productos Activos</h6>
+            <h2 class="fw-bold mb-0 text-success" id="stat-activos">0</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card danger">
+            <h6 class="text-muted fw-bold text-uppercase mb-1">Órdenes Pendientes</h6>
+            <h2 class="fw-bold mb-0 text-danger" id="stat-ordenes">0</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Pestañas de Navegación -->
+<ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-inventario-tab" data-bs-toggle="pill" data-bs-target="#pills-inventario" type="button" role="tab">
+            <i class="fa-solid fa-boxes-stacked me-2"></i>Gestión de Inventario
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-ordenes-tab" data-bs-toggle="pill" data-bs-target="#pills-ordenes" type="button" role="tab">
+            <i class="fa-solid fa-truck-fast me-2"></i>Despacho de Órdenes
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+    <!-- PESTAÑA INVENTARIO -->
+    <div class="tab-pane fade show active" id="pills-inventario" role="tabpanel">
+        
+        <!-- Filtro de Categoría -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <select id="filtroCategoria" class="form-select shadow-sm" onchange="cargarInsumos()">
+                    <option value="">Todas las Categorías</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla CRUD Empresarial -->
+        <div class="admin-table-card mb-5">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">SKU</th>
+                            <th>Detalle del Producto</th>
+                            <th>Lote & Venc.</th>
+                            <th>Precio Unit.</th>
+                            <th>Estado / Stock</th>
+                            <th class="text-end pe-4">Administrar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaInsumos">
+                        <tr><td colspan="6" class="text-center py-5"><span class="spinner-border text-primary"></span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA ÓRDENES -->
+    <div class="tab-pane fade" id="pills-ordenes" role="tabpanel">
+        <!-- Buscador de Órdenes -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" id="buscadorOrdenes" class="form-control border-start-0 ps-0" placeholder="Buscar por ID de Orden (ej. 5)..." oninput="renderOrdenes()">
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-table-card mb-5">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">ID Orden</th>
+                            <th>Institución Médica</th>
+                            <th>Fecha</th>
+                            <th>Cajas Totales</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaOrdenes">
+                        <tr><td colspan="6" class="text-center py-5"><span class="spinner-border text-primary"></span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Universal (Crear / Editar Insumo) -->
+<div class="modal fade" id="modalInsumo" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-light border-0 pb-3 pt-4 px-4 rounded-top-4">
+                <h4 class="modal-title fw-bold text-dark" id="modalTitle">Registrar Insumo</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formInsumo">
+                    <input type="hidden" id="insumoId">
+                    
+                    <div class="form-floating mb-3">
+                        <select id="categoriaId" class="form-select fw-bold" required>
+                            <option value="" selected disabled>Cargando categorías...</option>
+                        </select>
+                        <label>Categoría Farmacéutica</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" id="imagen" class="form-control" placeholder="/static/..." required>
+                        <label class="ps-4">Enlace de la Imagen (URL/Path)</label>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 form-floating">
+                            <input type="text" id="nombre" class="form-control" placeholder="Nombre" required>
+                            <label class="ps-4">Nombre Comercial</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="text" id="principio" class="form-control" placeholder="Principio" required>
+                            <label class="ps-4">Principio Activo</label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 form-floating">
+                            <input type="text" id="lote" class="form-control" placeholder="Lote" required>
+                            <label class="ps-4">Código de Lote</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="date" id="fecha" class="form-control" required>
+                            <label class="ps-4">Fecha Vencimiento</label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 form-floating">
+                            <input type="number" step="0.01" id="precio" class="form-control fw-bold text-primary" placeholder="Precio" required>
+                            <label class="ps-4">Precio Unitario ($)</label>
+                        </div>
+                        <div class="col-md-6 form-floating">
+                            <input type="number" id="stock" class="form-control fw-bold" placeholder="Stock" required>
+                            <label class="ps-4">Stock Físico Inicial</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" id="btnSubmit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill">
+                            Guardar Producto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalles de la Orden -->
+<div class="modal fade" id="modalDetalleOrden" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0 pb-3 pt-4 px-4 rounded-top-4">
+                <h5 class="modal-title fw-bold" id="detalleOrdenTitle"><i class="fa-solid fa-list-check me-2"></i>Detalle de la Orden</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Insumo Médico</th>
+                                <th class="text-center">Cajas Solicitadas</th>
+                                <th class="text-end">Precio (Al momento)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detalleOrdenBody">
+                            <!-- Inyectado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary rounded-pill fw-bold" data-bs-dismiss="modal">Cerrar Detalles</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const token = localStorage.getItem('access_token');
+if (!token) window.location.href = '/login/';
+
+const payload = JSON.parse(atob(token.split('.')[1]));
+if (payload.is_superuser) {
+    document.getElementById('adminBadge').style.display = 'inline-block';
+}
+
+const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+let insumosGlobal = [];
+let ordenesGlobal = [];
+let modalMode = 'create';
+
+function getModal() { return bootstrap.Modal.getOrCreateInstance(document.getElementById('modalInsumo')); }
+function getModalDetalle() { return bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetalleOrden')); }
+
+function abrirModalCrear() {
+    modalMode = 'create';
+    document.getElementById('modalTitle').innerText = 'Registrar Insumo';
+    document.getElementById('formInsumo').reset();
+    document.getElementById('insumoId').value = '';
+    getModal().show();
+}
+
+function abrirModalEditar(id) {
+    modalMode = 'edit';
+    document.getElementById('modalTitle').innerText = 'Editar Insumo';
+    const insumo = insumosGlobal.find(i => i.id === id);
+    
+    document.getElementById('insumoId').value = insumo.id;
+    document.getElementById('categoriaId').value = insumo.categoria;
+    document.getElementById('nombre').value = insumo.nombre_comercial;
+    document.getElementById('principio').value = insumo.principio_activo;
+    document.getElementById('lote').value = insumo.lote;
+    document.getElementById('fecha').value = insumo.fecha_vencimiento;
+    document.getElementById('precio').value = insumo.precio_unitario;
+    document.getElementById('stock').value = insumo.stock;
+    document.getElementById('imagen').value = insumo.imagen_url;
+    
+    getModal().show();
+}
+
+async function cargarCategorias() {
+    const res = await fetch('/api/categorias/', { headers });
+    const categorias = await res.json();
+    
+    const selectModal = document.getElementById('categoriaId');
+    const selectFiltro = document.getElementById('filtroCategoria');
+    selectModal.innerHTML = '<option value="" selected disabled>Seleccione una categoría...</option>';
+    
+    categorias.forEach(cat => {
+        selectModal.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+        selectFiltro.innerHTML += `<option value="${cat.id}">${cat.nombre}</option>`;
+    });
+}
+
+async function cargarInsumos() {
+    const categoriaId = document.getElementById('filtroCategoria').value;
+    let url = '/api/insumos/';
+    if (categoriaId) url += `?categoria=${categoriaId}`;
+
+    const res = await fetch(url, { headers });
+    insumosGlobal = await res.json();
+    
+    if (!categoriaId) {
+        document.getElementById('stat-total').innerText = insumosGlobal.length;
+        document.getElementById('stat-activos').innerText = insumosGlobal.filter(i => i.activo).length;
+    }
+
+    const tbody = document.getElementById('tablaInsumos');
+    tbody.innerHTML = '';
+    
+    if(insumosGlobal.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted"><i class="fa-solid fa-box-open fs-1 mb-3 d-block text-light"></i>No hay insumos registrados.</td></tr>`;
+        return;
+    }
+
+    insumosGlobal.forEach(item => {
+        const rowClass = item.activo ? '' : 'row-inactive';
+        const stockClass = item.stock < 10 ? 'badge-soft-danger' : 'badge-soft-success';
+        const precioCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(item.precio_unitario);
+        
+        const estadoHTML = item.activo 
+            ? `<span class="badge bg-success rounded-pill px-3 py-1 mb-2 d-inline-block"><i class="fa-solid fa-check me-1"></i>Visible</span>`
+            : `<span class="badge bg-danger rounded-pill px-3 py-1 mb-2 d-inline-block"><i class="fa-solid fa-ban me-1"></i>Oculto</span>`;
+            
+        const toggleBtn = item.activo
+            ? `<button onclick="cambiarEstado(${item.id}, false)" class="btn btn-light text-danger btn-action bg-white shadow-sm" title="Ocultar del Catálogo"><i class="fa-solid fa-eye-slash"></i></button>`
+            : `<button onclick="cambiarEstado(${item.id}, true)" class="btn btn-light text-success btn-action bg-white shadow-sm border border-success" title="Habilitar en Catálogo"><i class="fa-solid fa-eye"></i></button>`;
+
+        tbody.innerHTML += `
+            <tr class="${rowClass}">
+                <td class="ps-4 text-muted fw-bold small">#${item.id}</td>
+                <td>
+                    <div class="fw-bold text-dark fs-6">${item.nombre_comercial}</div>
+                    <div class="text-muted small mt-1"><i class="fa-solid fa-flask text-primary opacity-50 me-1"></i>${item.principio_activo}</div>
+                </td>
+                <td>
+                    <div class="fw-bold text-secondary mb-1">${item.lote}</div>
+                    <div class="text-muted small"><i class="fa-regular fa-calendar opacity-50 me-1"></i>Vence: ${item.fecha_vencimiento}</div>
+                </td>
+                <td class="fw-bold text-dark fs-5">${precioCLP}</td>
+                <td>
+                    ${estadoHTML}<br>
+                    <span class="badge ${stockClass} px-2 py-1"><i class="fa-solid fa-cubes me-1"></i>${item.stock} Unidades</span>
+                </td>
+                <td class="text-end pe-4">
+                    <button onclick="abrirModalEditar(${item.id})" class="btn btn-light text-primary btn-action bg-white shadow-sm me-2" title="Editar Producto">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    ${toggleBtn}
+                </td>
+            </tr>`;
+    });
+}
+
+// =======================
+// GESTIÓN DE ÓRDENES
+// =======================
+
+async function cargarOrdenes() {
+    try {
+        const res = await fetch('/api/solicitudes/todas_solicitudes/', { headers });
+        ordenesGlobal = await res.json();
+        
+        // Actualizar card de stat globalmente (fuera de la pestaña)
+        const pendientes = ordenesGlobal.filter(o => o.estado === 'PAGADO').length;
+        document.getElementById('stat-ordenes').innerText = pendientes;
+
+        renderOrdenes();
+    } catch(e) {
+        console.error("Error cargando ordenes", e);
+    }
+}
+
+function renderOrdenes() {
+    const query = document.getElementById('buscadorOrdenes').value.trim().toLowerCase();
+    const tbody = document.getElementById('tablaOrdenes');
+    tbody.innerHTML = '';
+
+    const ordenesFiltradas = ordenesGlobal.filter(o => {
+        return o.id.toString().includes(query) || o.institucion.toLowerCase().includes(query);
+    });
+
+    if(ordenesFiltradas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted">No se encontraron órdenes.</td></tr>`;
+        return;
+    }
+
+    ordenesFiltradas.forEach(orden => {
+        let badgeClass = 'bg-secondary';
+        if(orden.estado === 'PAGADO') badgeClass = 'bg-primary';
+        if(orden.estado === 'ENTREGADO') badgeClass = 'bg-success';
+        if(orden.estado === 'CANCELADO') badgeClass = 'bg-danger';
+
+        let acciones = '';
+        if (orden.estado === 'PAGADO') {
+            acciones = `
+                <button onclick="cambiarEstadoOrden(${orden.id}, 'ENTREGADO')" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm me-2">Despachar</button>
+                <button onclick="cambiarEstadoOrden(${orden.id}, 'CANCELADO')" class="btn btn-sm btn-outline-danger rounded-pill px-3">Cancelar</button>
+            `;
+        } else {
+            acciones = `<span class="text-muted small fst-italic">Cerrada</span>`;
+        }
+
+        const dateStr = new Date(orden.fecha_creacion).toLocaleString();
+
+        tbody.innerHTML += `
+            <tr>
+                <td class="ps-4">
+                    <div class="fw-bold text-dark mb-1">ORD-${orden.id}</div>
+                    <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="verDetallesOrden(${orden.id})">
+                        <i class="fa-solid fa-eye me-1"></i>Ver Detalles
+                    </button>
+                </td>
+                <td class="fw-bold text-primary"><i class="fa-solid fa-hospital me-2"></i>${orden.institucion}</td>
+                <td class="text-muted small">${dateStr}</td>
+                <td><span class="badge bg-dark rounded-pill px-3 py-2"><i class="fa-solid fa-box me-1"></i>${orden.items_count} Cajas</span></td>
+                <td><span class="badge ${badgeClass} rounded-pill px-3 py-2">${orden.estado}</span></td>
+                <td class="text-end pe-4">${acciones}</td>
+            </tr>`;
+    });
+}
+
+function verDetallesOrden(id) {
+    const orden = ordenesGlobal.find(o => o.id === id);
+    document.getElementById('detalleOrdenTitle').innerHTML = `<i class="fa-solid fa-list-check me-2"></i>Detalle Orden ORD-${orden.id}`;
+    
+    const tbody = document.getElementById('detalleOrdenBody');
+    tbody.innerHTML = '';
+    
+    orden.detalle.forEach(item => {
+        const precioCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(item.precio_congelado);
+        tbody.innerHTML += `
+            <tr>
+                <td class="fw-bold text-dark">${item.insumo}</td>
+                <td class="text-center"><span class="badge bg-primary rounded-pill fs-6">${item.cantidad} Cajas</span></td>
+                <td class="text-end text-success fw-bold">${precioCLP} c/u</td>
+            </tr>
+        `;
+    });
+
+    getModalDetalle().show();
+}
+
+async function cambiarEstadoOrden(id, nuevoEstado) {
+    if(confirm(`¿Confirma cambiar la orden ORD-${id} al estado ${nuevoEstado}? ${nuevoEstado === 'CANCELADO' ? 'El stock se devolverá a la bodega automáticamente.' : ''}`)) {
+        await fetch(`/api/solicitudes/${id}/actualizar_estado/`, {
+            method: 'PATCH',
+            headers: headers,
+            body: JSON.stringify({ estado: nuevoEstado })
+        });
+        cargarOrdenes();
+        cargarInsumos(); // Por si se canceló, refrescamos stock local de la otra tabla
+    }
+}
+
+async function cambiarEstado(id, nuevoEstado) {
+    const accion = nuevoEstado ? "HABILITAR" : "OCULTAR";
+    if(confirm(`¿Estás seguro de ${accion} este insumo del catálogo de clientes?`)) {
+        await fetch(`/api/insumos/${id}/`, {
+            method: 'PATCH',
+            headers: headers,
+            body: JSON.stringify({ activo: nuevoEstado })
+        });
+        cargarInsumos();
+    }
+}
+
+// Configuración del Formulario Insumos
+document.getElementById('formInsumo').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('insumoId').value;
+    const bodyData = {
+        categoria: document.getElementById('categoriaId').value,
+        nombre_comercial: document.getElementById('nombre').value,
+        principio_activo: document.getElementById('principio').value,
+        lote: document.getElementById('lote').value,
+        fecha_vencimiento: document.getElementById('fecha').value,
+        precio_unitario: document.getElementById('precio').value,
+        stock: document.getElementById('stock').value,
+        imagen_url: document.getElementById('imagen').value
+    };
+
+    const url = modalMode === 'edit' ? `/api/insumos/${id}/` : '/api/insumos/';
+    const method = modalMode === 'edit' ? 'PUT' : 'POST';
+
+    const res = await fetch(url, { method, headers, body: JSON.stringify(bodyData) });
+
+    if(res.ok) {
+        getModal().hide();
+        cargarInsumos();
+    } else {
+        const errorData = await res.json();
+        let errorMsg = "Falla en la validación:\n";
+        for (const [key, value] of Object.entries(errorData)) {
+            errorMsg += `- ${key}: ${value}\n`;
+        }
+        alert(errorMsg);
+    }
+});
+
+// Inicializar el Dashboard Completo al Cargar la Página
+cargarCategorias().then(() => {
+    cargarInsumos();
+    cargarOrdenes(); // Esto fuerza a que las ordenes se carguen ocultas y el número del contador se actualice de inmediato
+});
+</script>
+{% endblock %}
