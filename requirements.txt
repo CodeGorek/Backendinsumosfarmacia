@@ -1,0 +1,42 @@
+# =======================================================
+# LIBRERÍAS PRINCIPALES DEL PROYECTO 5 (B2B)
+# Comando para instalar todo de una vez: pip install -r requirements.txt
+# =======================================================
+
+# Framework Web principal de Python
+Django==6.1.1
+
+# Motor para construir la API REST que consume el frontend
+djangorestframework==3.18.1
+
+# Sistema de autenticación de seguridad mediante Tokens JWT
+djangorestframework_simplejwt==5.5.1
+PyJWT==2.15.1  # Librería subyacente para codificar/decodificar los JWT
+
+# Driver adaptador para la conexión con la base de datos PostgreSQL
+psycopg2-binary==2.9.13
+
+# Motor para generar filtros dinámicos en los ViewSets (Ej: búsqueda por categoría)
+django-filter==26.1
+
+# Herramienta para generar automáticamente la documentación OpenAPI 3 (Swagger UI)
+drf-spectacular==0.30.0
+
+
+# =======================================================
+# DEPENDENCIAS INTERNAS (Instaladas automáticamente)
+# =======================================================
+
+# Sub-librerías requeridas por drf-spectacular para procesar y renderizar Swagger
+PyYAML==6.0.3
+inflection==0.5.1
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+referencing==0.37.0
+rpds-py==2026.6.3
+uritemplate==4.2.0
+
+# Sub-librerías asíncronas, de fecha y SQL requeridas por el núcleo de Django
+asgiref==3.12.1
+sqlparse==0.6.0
+tzdata==2026.4
