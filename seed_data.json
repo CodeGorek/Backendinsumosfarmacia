@@ -1,0 +1,416 @@
+[
+{
+    "model": "farmacia.usuario",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$1500000$cywW8CHgXyApC4qspw6UPi$er+MJL3eIWRs1iKCJ7nZl81stPXVjqwJePDotKwAU68=",
+        "last_login": "2026-10-01T23:21:51.550Z",
+        "is_superuser": true,
+        "username": "oscar",
+        "first_name": "",
+        "last_name": "",
+        "email": "oscarsalazarkr@gmail.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-09-30T13:41:32Z",
+        "rol": "GESTOR",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "farmacia.usuario",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$1500000$DXlM1CBVdVEtjHAlIyV70c$siCR0IV2YItNpcxKFINSMwRTtYd0fm76qd8BIzYQfPQ=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "clinica_alemana",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-10-01T14:40:08Z",
+        "rol": "INSTITUCION",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "farmacia.usuario",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$1500000$VDwpnSvR60Kq4ELIDaaHTH$ytgvPHdmHz75UZQIU90/IWinRpxCyBMCTNKa9lrRQRw=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "jose",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-10-01T23:24:04Z",
+        "rol": "GESTOR",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "farmacia.usuario",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$1500000$b2oUUpvRbNjcx2nOo9pAbK$fHITB7UIk5HdnvOtYrhZwFTx1LJ/RLghICV1IEuoGCI=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "clinica_gabriela",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-10-01T23:27:27.056Z",
+        "rol": "INSTITUCION",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "farmacia.categoria",
+    "pk": 1,
+    "fields": {
+        "nombre": "Analgésicos y Antipiréticos"
+    }
+},
+{
+    "model": "farmacia.categoria",
+    "pk": 2,
+    "fields": {
+        "nombre": "Material Quirúrgico"
+    }
+},
+{
+    "model": "farmacia.categoria",
+    "pk": 3,
+    "fields": {
+        "nombre": "Insumos Generales"
+    }
+},
+{
+    "model": "farmacia.categoria",
+    "pk": 4,
+    "fields": {
+        "nombre": "Medicamentos"
+    }
+},
+{
+    "model": "farmacia.categoria",
+    "pk": 5,
+    "fields": {
+        "nombre": "Insumos Clínicos"
+    }
+},
+{
+    "model": "farmacia.categoria",
+    "pk": 6,
+    "fields": {
+        "nombre": "Equipamiento"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 1,
+    "fields": {
+        "nombre_comercial": "Paracetamol 500mg (Caja 20 comp.)",
+        "principio_activo": "Paracetamol",
+        "lote": "LT-845A",
+        "fecha_vencimiento": "2028-12-31",
+        "precio_unitario": "1250.00",
+        "stock": 149,
+        "categoria": 1,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_paracetamol_20.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 2,
+    "fields": {
+        "nombre_comercial": "Jeringas Descartables 5ml (Caja 100)",
+        "principio_activo": "N/A",
+        "lote": "LT-992B",
+        "fecha_vencimiento": "2029-06-30",
+        "precio_unitario": "5500.00",
+        "stock": 79,
+        "categoria": 2,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_jeringas_sin_aguja.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 3,
+    "fields": {
+        "nombre_comercial": "Paracetamol 500mg (100 comp)",
+        "principio_activo": "Paracetamol",
+        "lote": "L-101",
+        "fecha_vencimiento": "2028-05-20",
+        "precio_unitario": "2500.00",
+        "stock": 500,
+        "categoria": 4,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_paracetamol_100.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 4,
+    "fields": {
+        "nombre_comercial": "Amoxicilina 500mg (21 cap)",
+        "principio_activo": "Amoxicilina",
+        "lote": "L-102",
+        "fecha_vencimiento": "2027-08-15",
+        "precio_unitario": "3200.00",
+        "stock": 300,
+        "categoria": 4,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_amoxicilina.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 5,
+    "fields": {
+        "nombre_comercial": "Ibuprofeno 400mg (20 comp)",
+        "principio_activo": "Ibuprofeno",
+        "lote": "L-103",
+        "fecha_vencimiento": "2028-01-10",
+        "precio_unitario": "1800.00",
+        "stock": 450,
+        "categoria": 4,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_ibuprofeno.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 6,
+    "fields": {
+        "nombre_comercial": "Losartán 50mg (30 comp)",
+        "principio_activo": "Losartán Potásico",
+        "lote": "L-104",
+        "fecha_vencimiento": "2029-03-22",
+        "precio_unitario": "4500.00",
+        "stock": 200,
+        "categoria": 4,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_losartan.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 7,
+    "fields": {
+        "nombre_comercial": "Jeringas 5ml con Aguja (Caja 100)",
+        "principio_activo": "Polipropileno",
+        "lote": "J-501",
+        "fecha_vencimiento": "2030-12-31",
+        "precio_unitario": "8500.00",
+        "stock": 150,
+        "categoria": 5,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_jeringas_aguja.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 8,
+    "fields": {
+        "nombre_comercial": "Suero Fisiológico 0.9% (500ml)",
+        "principio_activo": "Cloruro de Sodio",
+        "lote": "S-202",
+        "fecha_vencimiento": "2027-11-30",
+        "precio_unitario": "1200.00",
+        "stock": 800,
+        "categoria": 5,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_suero.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 9,
+    "fields": {
+        "nombre_comercial": "Mascarillas Quirúrgicas (Caja 50)",
+        "principio_activo": "Polipropileno 3 capas",
+        "lote": "M-303",
+        "fecha_vencimiento": "2031-06-15",
+        "precio_unitario": "2900.00",
+        "stock": 1000,
+        "categoria": 5,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_mascarillas.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 10,
+    "fields": {
+        "nombre_comercial": "Guantes de Látex Talla M (Caja 100)",
+        "principio_activo": "Látex Natural",
+        "lote": "G-404",
+        "fecha_vencimiento": "2029-09-10",
+        "precio_unitario": "5500.00",
+        "stock": 395,
+        "categoria": 5,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_guantes.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 11,
+    "fields": {
+        "nombre_comercial": "Estetoscopio Littmann Classic III",
+        "principio_activo": "Acero Inoxidable",
+        "lote": "E-901",
+        "fecha_vencimiento": "2035-01-01",
+        "precio_unitario": "115000.00",
+        "stock": 200,
+        "categoria": 6,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_estetoscopio.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 12,
+    "fields": {
+        "nombre_comercial": "Termómetro Infrarrojo Digital",
+        "principio_activo": "Plástico ABS",
+        "lote": "E-902",
+        "fecha_vencimiento": "2035-01-01",
+        "precio_unitario": "22000.00",
+        "stock": 110,
+        "categoria": 6,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_termometro.jpg"
+    }
+},
+{
+    "model": "farmacia.insumo",
+    "pk": 13,
+    "fields": {
+        "nombre_comercial": "Estetoscopio Littmann Classic I",
+        "principio_activo": "Acero Inoxidable",
+        "lote": "E-917",
+        "fecha_vencimiento": "2031-10-17",
+        "precio_unitario": "25000.00",
+        "stock": 200,
+        "categoria": 6,
+        "activo": true,
+        "imagen_url": "/static/farmacia/img/img_estetoscopio.jpg"
+    }
+},
+{
+    "model": "farmacia.carro",
+    "pk": 1,
+    "fields": {
+        "usuario": 1,
+        "creado_en": "2026-09-30T14:35:40.946Z"
+    }
+},
+{
+    "model": "farmacia.carro",
+    "pk": 2,
+    "fields": {
+        "usuario": 2,
+        "creado_en": "2026-10-01T14:42:28.293Z"
+    }
+},
+{
+    "model": "farmacia.carro",
+    "pk": 3,
+    "fields": {
+        "usuario": 4,
+        "creado_en": "2026-10-01T23:44:25.505Z"
+    }
+},
+{
+    "model": "farmacia.solicitud",
+    "pk": 1,
+    "fields": {
+        "institucion": 2,
+        "estado": "ENTREGADO",
+        "fecha_creacion": "2026-10-01T14:42:49.193Z"
+    }
+},
+{
+    "model": "farmacia.solicitud",
+    "pk": 2,
+    "fields": {
+        "institucion": 2,
+        "estado": "PAGADO",
+        "fecha_creacion": "2026-10-01T23:30:52.928Z"
+    }
+},
+{
+    "model": "farmacia.solicitud",
+    "pk": 3,
+    "fields": {
+        "institucion": 4,
+        "estado": "PAGADO",
+        "fecha_creacion": "2026-10-01T23:45:42.258Z"
+    }
+},
+{
+    "model": "farmacia.solicituditem",
+    "pk": 1,
+    "fields": {
+        "solicitud": 1,
+        "insumo": 1,
+        "cantidad": 1,
+        "precio_congelado": "1250.00"
+    }
+},
+{
+    "model": "farmacia.solicituditem",
+    "pk": 2,
+    "fields": {
+        "solicitud": 1,
+        "insumo": 2,
+        "cantidad": 1,
+        "precio_congelado": "5500.00"
+    }
+},
+{
+    "model": "farmacia.solicituditem",
+    "pk": 3,
+    "fields": {
+        "solicitud": 2,
+        "insumo": 11,
+        "cantidad": 10,
+        "precio_congelado": "115000.00"
+    }
+},
+{
+    "model": "farmacia.solicituditem",
+    "pk": 4,
+    "fields": {
+        "solicitud": 3,
+        "insumo": 12,
+        "cantidad": 15,
+        "precio_congelado": "22000.00"
+    }
+},
+{
+    "model": "farmacia.solicituditem",
+    "pk": 5,
+    "fields": {
+        "solicitud": 3,
+        "insumo": 10,
+        "cantidad": 5,
+        "precio_congelado": "5500.00"
+    }
+}
+]

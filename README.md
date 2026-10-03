@@ -40,11 +40,12 @@ pip install -r requirements.txt
 ```
 
 ### 4. Configurar la Base de Datos y Ejecutar
-Asegúrese de tener PostgreSQL corriendo con la base de datos `farmacia_db` (credenciales en `config/settings.py`), aplique las migraciones y corra el servidor:
+Asegúrese de tener PostgreSQL corriendo con la base de datos `farmacia_db` (credenciales en `config/settings.py`). Luego, construya las tablas e importe los datos de prueba pre-cargados (Usuarios, Categorías y Catálogo) ejecutando:
 ```bash
 python manage.py migrate
+python manage.py loaddata seed_data.json
 python manage.py runserver
 ```
 
 ---
-*Nota Técnica: La carpeta `venv/` original no se subió al repositorio de GitHub de manera intencional mediante `.gitignore` para cumplir con los estándares de desarrollo limpio.*
+*Nota Técnica: La carpeta `venv/` original no se subió al repositorio de GitHub de manera intencional mediante `.gitignore` para cumplir con los estándares de desarrollo limpio. Los datos de PostgreSQL se exportaron a `seed_data.json` para facilitar la revisión en cualquier entorno local.*
